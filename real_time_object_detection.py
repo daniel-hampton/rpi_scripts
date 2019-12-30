@@ -29,6 +29,9 @@ CLASSES = ["background", "aeroplane", "bicycle", "bird", "boat",
 CHOSEN_CLASSES = {"car", "person"}
 COLORS = np.random.uniform(0, 255, size=(len(CLASSES), 3))
 
+RED_BGR: np.ndarray = np.array([204, 22, 22])[::-1]
+TEAL_BGR: np.ndarray = np.array([22, 161, 166])[::-1]
+
 # Load our serialized model from disk.
 print("[INFO] loading model...")
 net = cv2.dnn.readNetFromCaffe(args["prototxt"], args["model"])
@@ -76,6 +79,13 @@ while True:
             if CLASSES[idx] not in CHOSEN_CLASSES:
                 continue
 
+            if CLASSES[idx] == "car":
+                border_color = RED_BGR
+            elif CLASSES == "person":
+                border_color = TEAL_BGR
+            else:
+                border_color = COLORS[idx]
+
             box = detections[0, 0, i, 3:7] * np.array([w, h, w, h])
             (startX, startY, endX, endY) = box.astype("int")
 
@@ -86,10 +96,12 @@ while True:
             cv2.rectangle(frame, (startX, startY), (endX, endY), COLORS[idx], 2)
             y = startY - 15 if startY - 15 > 15 else startY + 15
             cv2.putText(frame, label, (startX, y), cv2.FONT_HERSHEY_SIMPLEX,
-                        0.5, COLORS[idx], 2)
+                        0.5, border_color, 2)
 
     # Show the output frame
-    cv2.imshow("Frame", frame)
+    cv2.namedWindow("Video", cv2.WINDOW_NORMAL)
+    cv2.setWindowProperty("Video", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+    cv2.imshow("Video", frame)
     key = cv2.waitKey(1) & 0xFF
 
     # If the 'q' key was pressed, break from the loop
