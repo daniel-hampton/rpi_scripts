@@ -8,6 +8,11 @@ import cv2
 import imutils
 import numpy as np
 from imutils.video import VideoStream, FPS
+from gpiozero import LED
+
+blueLED = LED(17)
+redLED = LED(27)
+greenLED = LED(22)
 
 # Construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser(description="Detect objects in a real time video stream")
@@ -75,8 +80,11 @@ vs = VideoStream(stream_url).start()
 time.sleep(2.0)
 fps = FPS().start()
 
+greenLED.on()
+
 # Loop over the frames from the video stream
 while True:
+
     # Grab the frame from the threaded video stream and resize it
     # to have a maximum width of 400 pixels
     frame = vs.read()
@@ -92,6 +100,10 @@ while True:
     # predictions.
     net.setInput(blob)
     detections = net.forward()
+
+    # Turn off LEDs for new loop.
+    blueLED.off()
+    redLED.off()
 
     # Loop over the detections
     for i in np.arange(0, detections.shape[2]):
@@ -111,8 +123,10 @@ while True:
 
             if CLASSES[idx] == "car":
                 border_color = RED
+                redLED.on()
             elif CLASSES[idx] == "person":
                 border_color = TEAL
+                blueLED.on()
             else:
                 border_color = COLORS[idx]
 
@@ -152,6 +166,11 @@ while True:
 
     # Update the FPS counter
     fps.update()
+
+# Turn off the LEDs
+blueLED.off()
+redLED.off()
+greenLED.off()
 
 # Stop the timer and display FPS information
 fps.stop()
