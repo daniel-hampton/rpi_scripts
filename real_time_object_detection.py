@@ -1,6 +1,8 @@
 # Import the necessary packages
 import argparse
+import datetime
 import time
+import tkinter as tk
 
 import cv2
 import imutils
@@ -31,6 +33,10 @@ COLORS = np.random.uniform(0, 255, size=(len(CLASSES), 3))
 
 RED: np.ndarray = np.array([204, 22, 22], dtype=float)[::-1]
 TEAL: np.ndarray = np.array([22, 161, 166], dtype=float)[::-1]
+
+# Get the device screen resolution
+root = tk.Tk()
+screen_res = (root.winfo_screenwidth(), root.winfo_screenheight())
 
 # Load our serialized model from disk.
 print("[INFO] loading model...")
@@ -86,6 +92,9 @@ while True:
             else:
                 border_color = COLORS[idx]
 
+            # Log what was detected:
+            print(f"Detected: {CLASSES[idx]}, {datetime.datetime.now()}")
+
             box = detections[0, 0, i, 3:7] * np.array([w, h, w, h])
             (startX, startY, endX, endY) = box.astype("int")
 
@@ -100,6 +109,7 @@ while True:
                         0.5, border_color, 2)
 
     # Show the output frame
+    frame = cv2.resize(frame, screen_res, cv2.INTER_LINEAR)
     cv2.namedWindow("Video", cv2.WINDOW_NORMAL)
     cv2.setWindowProperty("Video", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
     cv2.imshow("Video", frame)
