@@ -29,8 +29,8 @@ CLASSES = ["background", "aeroplane", "bicycle", "bird", "boat",
 CHOSEN_CLASSES = {"car", "person"}
 COLORS = np.random.uniform(0, 255, size=(len(CLASSES), 3))
 
-RED_BGR: np.ndarray = np.array([204, 22, 22])[::-1]
-TEAL_BGR: np.ndarray = np.array([22, 161, 166])[::-1]
+RED: np.ndarray = np.array([204, 22, 22], dtype=float)[::-1]
+TEAL: np.ndarray = np.array([22, 161, 166], dtype=float)[::-1]
 
 # Load our serialized model from disk.
 print("[INFO] loading model...")
@@ -41,8 +41,8 @@ net = cv2.dnn.readNetFromCaffe(args["prototxt"], args["model"])
 print("[INFO] starting video stream...")
 stream_url = "rtsp://192.168.0.176:554/11"
 
-vs = VideoStream(stream_url).start()
-# vs = VideoStream(src=0).start()
+# vs = VideoStream(stream_url).start()
+vs = VideoStream(src=0).start()
 time.sleep(2.0)
 fps = FPS().start()
 
@@ -80,9 +80,9 @@ while True:
                 continue
 
             if CLASSES[idx] == "car":
-                border_color = RED_BGR
-            elif CLASSES == "person":
-                border_color = TEAL_BGR
+                border_color = RED
+            elif CLASSES[idx] == "person":
+                border_color = TEAL
             else:
                 border_color = COLORS[idx]
 
@@ -93,8 +93,9 @@ while True:
             print(f'idx: {idx}')
             print(f'length CLASSES: {len(CLASSES)}')
             label = "{}: {:.2f}%".format(CLASSES[idx], confidence * 100)
-            cv2.rectangle(frame, (startX, startY), (endX, endY), COLORS[idx], 2)
+            cv2.rectangle(frame, (startX, startY), (endX, endY), border_color, 2)
             y = startY - 15 if startY - 15 > 15 else startY + 15
+            print(border_color)
             cv2.putText(frame, label, (startX, y), cv2.FONT_HERSHEY_SIMPLEX,
                         0.5, border_color, 2)
 
