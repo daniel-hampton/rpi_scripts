@@ -11,7 +11,7 @@ rawCapture = PiRGBArray(camera)
 time.sleep(0.1)
 
 # grab an image from the camera
-camera.capture(rawCapture, format='rgb')
+camera.capture(rawCapture, format="rgb")
 image = rawCapture.array
 
 # display an image on screen and wait for a keypress

@@ -10,24 +10,47 @@ import numpy as np
 from imutils.video import VideoStream, FPS
 
 # Construct the argument parse and parse the arguments
-ap = argparse.ArgumentParser(
-    description="Detect objects in a real time video stream")
-ap.add_argument("-p", "--prototxt", required=True,
-                help="path to Caffe 'deploy' prototxt file")
-ap.add_argument("-m", "--model", required=True,
-                help="path to Caffe pre-trained model")
-ap.add_argument("-c", "--confidence", type=float, default=0.2,
-                help="minimum probability to filter weak detections")
+ap = argparse.ArgumentParser(description="Detect objects in a real time video stream")
+ap.add_argument(
+    "-p", "--prototxt", required=True, help="path to Caffe 'deploy' prototxt file"
+)
+ap.add_argument("-m", "--model", required=True, help="path to Caffe pre-trained model")
+ap.add_argument(
+    "-c",
+    "--confidence",
+    type=float,
+    default=0.2,
+    help="minimum probability to filter weak detections",
+)
 args = vars(ap.parse_args())
 
 # Initialize the list of class labels MobileNet SSD was trained to detect,
 # then generate a set of bounding box colors for each class.
 # CLASSES = ["background", "bottle", "bus", "car", "cat", "chair", "person", "laptop",
 #            "keyboard", "cellphone"]
-CLASSES = ["background", "aeroplane", "bicycle", "bird", "boat",
-           "bottle", "bus", "car", "cat", "chair", "cow", "diningtable",
-           "dog", "horse", "motorbike", "person", "pottedplant", "sheep",
-           "sofa", "train", "tvmonitor"]
+CLASSES = [
+    "background",
+    "aeroplane",
+    "bicycle",
+    "bird",
+    "boat",
+    "bottle",
+    "bus",
+    "car",
+    "cat",
+    "chair",
+    "cow",
+    "diningtable",
+    "dog",
+    "horse",
+    "motorbike",
+    "person",
+    "pottedplant",
+    "sheep",
+    "sofa",
+    "train",
+    "tvmonitor",
+]
 CHOSEN_CLASSES = {"car", "person"}
 COLORS = np.random.uniform(0, 255, size=(len(CLASSES), 3))
 
@@ -47,8 +70,8 @@ net = cv2.dnn.readNetFromCaffe(args["prototxt"], args["model"])
 print("[INFO] starting video stream...")
 stream_url = "rtsp://192.168.0.176:554/11"
 
-# vs = VideoStream(stream_url).start()
-vs = VideoStream(src=0).start()
+vs = VideoStream(stream_url).start()
+# vs = VideoStream(src=0).start()
 time.sleep(2.0)
 fps = FPS().start()
 
@@ -61,8 +84,9 @@ while True:
 
     # Grab the frame dimensions and convert it to a blob
     (h, w) = frame.shape[:2]
-    blob = cv2.dnn.blobFromImage(cv2.resize(frame, (300, 300)), 0.007843,
-                                 (300, 300), 127.5)
+    blob = cv2.dnn.blobFromImage(
+        cv2.resize(frame, (300, 300)), 0.007843, (300, 300), 127.5
+    )
 
     # Pass the blob through the network and obtain the detections and
     # predictions.
@@ -99,14 +123,21 @@ while True:
             (startX, startY, endX, endY) = box.astype("int")
 
             # Draw the prediction on the frame
-            print(f'idx: {idx}')
-            print(f'length CLASSES: {len(CLASSES)}')
+            print(f"idx: {idx}")
+            print(f"length CLASSES: {len(CLASSES)}")
             label = "{}: {:.2f}%".format(CLASSES[idx], confidence * 100)
             cv2.rectangle(frame, (startX, startY), (endX, endY), border_color, 2)
             y = startY - 15 if startY - 15 > 15 else startY + 15
             print(border_color)
-            cv2.putText(frame, label, (startX, y), cv2.FONT_HERSHEY_SIMPLEX,
-                        0.5, border_color, 2)
+            cv2.putText(
+                frame,
+                label,
+                (startX, y),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.5,
+                border_color,
+                2,
+            )
 
     # Show the output frame
     frame = cv2.resize(frame, screen_res, cv2.INTER_LINEAR)
