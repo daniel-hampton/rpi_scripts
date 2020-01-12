@@ -1,3 +1,3 @@
-python ./real_time_object_detection.py \
--m ./pi-object-detection/MobileNetSSD_deploy.caffemodel \
--p ./pi-object-detection/MobileNetSSD_deploy.prototxt.txt
+/home/pi/.virtualenvs/cv/bin/python /home/pi/rpi_scripts/real_time_object_detection.py \
+-m /home/pi/rpi_scripts/pi-object-detection/MobileNetSSD_deploy.caffemodel \
+-p /home/pi/rpi_scripts//pi-object-detection/MobileNetSSD_deploy.prototxt.txt
