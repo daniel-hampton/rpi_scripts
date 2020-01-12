@@ -131,10 +131,6 @@ while True:
                 num_cars += 1
                 border_color = RED
                 redLED.on()
-            elif CLASSES[idx] == "person":
-                num_persons += 1
-                border_color = TEAL
-                blueLED.on()
 
                 # Limit buzzer to around 4 seconds of activation.
                 if last_detected is None:
@@ -145,6 +141,11 @@ while True:
                         buzzer.off()
                     else:
                         buzzer.on()
+
+            elif CLASSES[idx] == "person":
+                num_persons += 1
+                border_color = TEAL
+                blueLED.on()
 
             else:
                 border_color = COLORS[idx]
@@ -167,8 +168,9 @@ while True:
             )
 
     # Reset the last detected variable if number of detections is zero for the frame.
-    if num_persons == 0:
+    if num_cars == 0:
         last_detected = None
+        buzzer.off()
 
     # Show the output frame
     frame = cv2.resize(frame, screen_res, cv2.INTER_LINEAR)
