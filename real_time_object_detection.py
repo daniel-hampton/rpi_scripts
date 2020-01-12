@@ -3,16 +3,18 @@ import argparse
 import datetime
 import time
 import tkinter as tk
+from typing import Union
 
 import cv2
 import imutils
 import numpy as np
 from imutils.video import VideoStream, FPS
-from gpiozero import LED
+from gpiozero import LED, Buzzer
 
 blueLED = LED(17)
 redLED = LED(27)
 greenLED = LED(22)
+buzzer = Buzzer(10)
 
 # Construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser(description="Detect objects in a real time video stream")
@@ -81,6 +83,7 @@ time.sleep(2.0)
 fps = FPS().start()
 
 greenLED.on()
+last_detected: Union[datetime.datetime, None] = None
 
 # Loop over the frames from the video stream
 while True:
@@ -105,13 +108,16 @@ while True:
     blueLED.off()
     redLED.off()
 
+    num_persons = 0
+    num_cars = 0
+
     # Loop over the detections
     for i in np.arange(0, detections.shape[2]):
         # Extract the confidence (i.e. probability) associated with the
         # prediction.
         confidence = detections[0, 0, i, 2]
 
-        # Filter out weak detetions by ensuring the 'confidence' is greater
+        # Filter out weak detections by ensuring the 'confidence' is greater
         # than the minimum confidence
         if confidence > args["confidence"]:
             # Extract the index of the class label from the 'detections', then
@@ -122,27 +128,34 @@ while True:
                 continue
 
             if CLASSES[idx] == "car":
+                num_cars += 1
                 border_color = RED
                 redLED.on()
             elif CLASSES[idx] == "person":
+                num_persons += 1
                 border_color = TEAL
                 blueLED.on()
+
+                # Limit buzzer to around 4 seconds of activation.
+                if last_detected is None:
+                    last_detected = datetime.datetime.now()
+                else:
+                    duration = datetime.datetime.now() - last_detected
+                    if duration.seconds > 4:
+                        buzzer.off()
+                    else:
+                        buzzer.on()
+
             else:
                 border_color = COLORS[idx]
-
-            # Log what was detected:
-            print(f"Detected: {CLASSES[idx]}, {datetime.datetime.now()}")
 
             box = detections[0, 0, i, 3:7] * np.array([w, h, w, h])
             (startX, startY, endX, endY) = box.astype("int")
 
             # Draw the prediction on the frame
-            print(f"idx: {idx}")
-            print(f"length CLASSES: {len(CLASSES)}")
             label = "{}: {:.2f}%".format(CLASSES[idx], confidence * 100)
             cv2.rectangle(frame, (startX, startY), (endX, endY), border_color, 2)
             y = startY - 15 if startY - 15 > 15 else startY + 15
-            print(border_color)
             cv2.putText(
                 frame,
                 label,
@@ -152,6 +165,10 @@ while True:
                 border_color,
                 2,
             )
+
+    # Reset the last detected variable if number of detections is zero for the frame.
+    if num_persons == 0:
+        last_detected = None
 
     # Show the output frame
     frame = cv2.resize(frame, screen_res, cv2.INTER_LINEAR)
@@ -171,6 +188,7 @@ while True:
 blueLED.off()
 redLED.off()
 greenLED.off()
+buzzer.off()
 
 # Stop the timer and display FPS information
 fps.stop()
