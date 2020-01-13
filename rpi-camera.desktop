@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=rpi-camera
+Comment=rpi camera
+NoDisplay=false
+Exec=/home/pi/rpi_scripts/run_realtime_detection.sh
+NotShowIn=GNOME;KD3;XFCE;
