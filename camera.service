@@ -1,0 +1,13 @@
+[Unit]
+Description=Camera Detection
+After=graphical.target
+
+[Service]
+ExecStart=/home/pi/rpi_scripts/run_realtime_detection.sh
+WorkingDirectory=/home/pi/rpi_scripts
+StandardOutput=inherit
+StandardInput=inherit
+Restart=on-failure
+
+[Install]
+WantedBy=graphical.target
